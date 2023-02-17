@@ -1,6 +1,10 @@
 FROM python:3.10.9-slim
 
-ENV HOME=/home/srpantano
+#RUN useradd -ms /bin/bash srpantano
+
+#ENV HOME=/home/srpantano
+
+ENV HOME=/app
 
 WORKDIR ${HOME}
 
@@ -8,15 +12,11 @@ RUN set -eux; \
     apt-get update; \
     apt-get install -y \
     build-essential \
-    git 
+    git \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN useradd -ms /bin/bash srpantano
+RUN git clone --progress --verbose https://github.com/srpantano/stocks.git .
 
-COPY fundamentus.py ${HOME}
-COPY StockValueScraper.py ${HOME}
-
-RUN git clone https://github.com/srpantano/stocks.git
-
-RUN pip3 install -r requirements.txt
+RUN pip install -r requirements.txt
 
 ENTRYPOINT [ "python", "StockValueScraper.py", "--url https://www.fundamentus.com.br/resultado.php",  "-dt 2020-12-18" ]
