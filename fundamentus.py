@@ -1,6 +1,5 @@
 import pandas as pd
 import requests
-import argparse
 import yfinance as yf
 from datetime import date, timedelta
 
@@ -8,15 +7,16 @@ from datetime import date, timedelta
 #HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36"}
 #DT_START = '2020-12-18'
 
-class fundametus:
+class Fundamentus:
 
+    def __init__(self, header) -> None:
+        self.__header = header
+    
     def __request_html(self) -> None: 
         req = requests.get(self.__url, headers=self.__header)
         return pd.read_html(req.text, decimal=',', thousands='.')[0]
     
-    def __clean_data(self) -> None:
-
-        df = self.__request_html()
+    def __clean_data(self, df) -> pd.DataFrame:
 
         for col in ['Div.Yield', 'Mrg Ebit', 'Mrg. Líq.', 'ROIC', 'ROE', 'Cresc. Rec.5a']:
             df[col] = df[col].str.replace('.', '')
@@ -25,10 +25,8 @@ class fundametus:
         
         return df
 
-    def __filter(self) -> None:
-
-        df = self.__clean_data()
-        
+    def __filter(self, df) -> pd.DataFrame:
+     
         df = df[df['Liq.2meses'] > 1000000]
         df = df[df['P/L'] <= 12]
         df = df[(df['Mrg. Líq.']  * 100) > 10]
@@ -40,9 +38,7 @@ class fundametus:
 
         return df
 
-    def __magicFormula(self) -> None:
-
-        df = self.__filter()
+    def __magicFormula(self, df) -> pd.DataFrame:
 
         length_dataframe = df.shape[0] + 1
         dfRank = pd.DataFrame()
@@ -57,20 +53,15 @@ class fundametus:
 
         return pd.DataFrame({'ticker': sResult.index, 'ranking': sResult.values})
 
-    def __downloadValues(self) -> None:
-
-        df = self.__magicFormula()
+    def __downloadValues(self, df) -> pd.DataFrame:
 
         tickers = ' '.join(list(map(lambda x: x + '.SA', df['ticker'].values.tolist())))
         
         dtEnd = (date.today() - timedelta(1)).strftime('%Y-%m-%d')
 
-        return yf.download(tickers, start=self.__dt_start, end=dtEnd, actions=True)['Close']
+        return yf.download(tickers, start=self.__dt_start, end=dtEnd, actions=True, progress=False)['Close']
     
-    def __dataProcess(self) -> None:
-
-        dfMF = self.__magicFormula()
-        dfTickers = self.__downloadValues()
+    def __dataProcess(self, dfMF, dfTickers) -> pd.DataFrame:
         
         for tkr in dfMF['ticker']:
 
@@ -82,11 +73,15 @@ class fundametus:
 
         return dfMF
 
-    def run(self, url, header, dt_start) -> None:
+    def run(self, url, dt_start) -> pd.DataFrame:
 
-        self.__url = url
-        self.__header = header
+        self.__url = url        
         self.__dt_start = dt_start
 
+        df = self.__request_html()
+        df = self.__clean_data(df)
+        df = self.__filter(df)
+        dfMagicFormula = self.__magicFormula(df)
+        dfDownloadValues = self.__downloadValues(dfMagicFormula)
 
-        return self.__dataProcess()
+        return self.__dataProcess(dfMagicFormula, dfDownloadValues)
