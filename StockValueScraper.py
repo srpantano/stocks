@@ -7,6 +7,7 @@ from tqdm import tqdm
 import argparse
 from tabulate import tabulate
 import warnings
+import re
 
 from fundamentus import Fundamentus
 
@@ -14,7 +15,7 @@ HEADER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/5
 
 class StockValueScraper:
 
-    def __init__(self, dfFundamentus) -> None:
+    def __init__(self, dfFundamentus: pd.DataFrame) -> None:
         self.__dfFundamentus = dfFundamentus
 
     def __scrap(self) -> None:
@@ -33,11 +34,16 @@ class StockValueScraper:
             soupTag_percent = float(soupTag_percent.get('value'))
         
             soupTag_limit = soup.find('td', attrs={'data-test':"DIVIDEND_AND_YIELD-value"})
-            soupTag_limit = float(soupTag_limit.text.split(' ')[0].replace(',', '.'))
-            soupTag_limit /= 0.06
+            ssoupTag_limit_value = soupTag_limit.text.split(' ')[0]
 
-            dfFin = pd.concat([pd.DataFrame([[ tck, soupTag_price, soupTag_percent, soupTag_limit ]], columns=('ticker', 'price', 'variation', 'limit')), dfFin], ignore_index=True)
-            time.sleep(3)
+            if re.search('^[-+]?\d*\,?\d*$', ssoupTag_limit_value) is not None:
+                ssoupTag_limit_value = float(ssoupTag_limit_value.replace(',', '.'))
+                ssoupTag_limit_value = float('%.2f' % (ssoupTag_limit_value / 0.06))
+            else:
+                ssoupTag_limit_value = pd.NA
+
+            dfFin = pd.concat([pd.DataFrame([[ tck, soupTag_price, soupTag_percent, ssoupTag_limit_value ]], columns=('ticker', 'price', 'variation', 'limit')), dfFin], ignore_index=True)
+            time.sleep(1)
 
         return dfFin    
 
@@ -69,8 +75,8 @@ def main() -> None:
 
     args = arguments()
 
-    fundamentus = Fundamentus(HEADER)
-    df = fundamentus.run(args.url, args.date)
+    fundamentus = Fundamentus()
+    df = fundamentus.run(args.url, HEADER, args.date)
     
     stocksValue =  StockValueScraper(df)   
     df = stocksValue.process()

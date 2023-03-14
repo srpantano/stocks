@@ -7,3 +7,12 @@
 /streamlit.tar
 /streamlit_temp.tar
 __pycache__/fundamentus.cpython-310.pyc
+ifix.csv
+IFIXQuad_1-2023.csv
+jan-fev.csv
+.gitignore
+mytopcv/style.css
+mytopcv/__pycache__/ai_improver.cpython-310.pyc
+mytopcv/__pycache__/constants.cpython-310.pyc
+mytopcv/__pycache__/cv_scanner.cpython-310.pyc
+mytopcv/ibmec_br.jpg

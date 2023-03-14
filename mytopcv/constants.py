@@ -1,0 +1,13 @@
+FIXED_KEYS = ['NAME','RESUMO PROFISSIONAL','DOB','WORKING AS','CONTACTS']
+VARIABLE_KEYS = ['EXPERIENCIA','SCHOOL']
+ORDERED_KEYS = ['NAME','DOB','WORKING AS','RESUMO PROFISSIONAL','EXPERIENCIA','ESCOLA','CONTACTS']
+DOB_PROMPT = 'Check that the following date is in YYYY/MM/DD. Correct it if its not in the same format, otherwise return the same: '
+SUMMARY_PROMPT_CONVERT = 'Converta o texto em um resumo de currículo:'
+TEMPERATURE_SUMMARY_PROMPT_CONVERT = 0.8
+SUMMARY_PROMPT_IMPROVER = 'Melhore a qualidade do texto a seguir:'
+TEMPERATURE_SUMMARY_PROMPT_IMPROVER = 0.3
+OPENAIMODEL = 'text-davinci-003'
+OPENAIKEY = "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"
+TEMPLATE_FILE = 'cv_template.txt'
+EXPERIENCE_PROMPT_CONVERT = "Make the text more appealing for a recruiter:"
+RESULT_FILE = 'cv_improved.txt'

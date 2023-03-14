@@ -9,23 +9,35 @@ from datetime import date, timedelta
 
 class Fundamentus:
 
-    def __init__(self, header) -> None:
-        self.__header = header
+    def _request_html(self, url, header) -> None: 
+        req = requests.get(url, headers=header)
+        return pd.read_html(req.text, 
+                            decimal=',', 
+                            thousands='.', 
+                            encoding='utf-8')[0]
     
-    def __request_html(self) -> None: 
-        req = requests.get(self.__url, headers=self.__header)
-        return pd.read_html(req.text, decimal=',', thousands='.')[0]
-    
-    def __clean_data(self, df) -> pd.DataFrame:
+    def _clean_data(self, df, cols) -> pd.DataFrame:
 
-        for col in ['Div.Yield', 'Mrg Ebit', 'Mrg. Líq.', 'ROIC', 'ROE', 'Cresc. Rec.5a']:
-            df[col] = df[col].str.replace('.', '')
-            df[col] = df[col].str.replace(',', '.')
-            df[col] = df[col].str.rstrip('%').astype('float') / 100
-        
+        for col in cols:     
+
+            text = df[col]
+
+            text = text.str.replace('.', '')
+            text = text.str.replace(',', '.')
+
+            currency = "R$ "
+            percent = '%'
+
+            if text.loc[text.str.startswith(currency, na=False)].size > 0:
+                text = text.str.lstrip(currency).astype('float')
+            elif text.loc[text.str.endswith(percent, na=False)].size > 0:
+               text = text.str.rstrip(percent).astype('float') / 100
+
+            df[col] = text
+
         return df
 
-    def __filter(self, df) -> pd.DataFrame:
+    def _filter(self, df) -> pd.DataFrame:
      
         df = df[df['Liq.2meses'] > 1000000]
         df = df[df['P/L'] <= 12]
@@ -53,13 +65,13 @@ class Fundamentus:
 
         return pd.DataFrame({'ticker': sResult.index, 'ranking': sResult.values})
 
-    def __downloadValues(self, df) -> pd.DataFrame:
+    def __downloadValues(self, df, dt_start) -> pd.DataFrame:
 
         tickers = ' '.join(list(map(lambda x: x + '.SA', df['ticker'].values.tolist())))
         
         dtEnd = (date.today() - timedelta(1)).strftime('%Y-%m-%d')
 
-        return yf.download(tickers, start=self.__dt_start, end=dtEnd, actions=True, progress=False)['Close']
+        return yf.download(tickers, start=dt_start, end=dtEnd, actions=True, progress=False)['Close']
     
     def __dataProcess(self, dfMF, dfTickers) -> pd.DataFrame:
         
@@ -73,15 +85,18 @@ class Fundamentus:
 
         return dfMF
 
-    def run(self, url, dt_start) -> pd.DataFrame:
+    def run(self, url, header, dt_start = '2020-12-18') -> pd.DataFrame:
 
-        self.__url = url        
-        self.__dt_start = dt_start
-
-        df = self.__request_html()
-        df = self.__clean_data(df)
-        df = self.__filter(df)
+        df = self._request_html(url, header)
+        df = self._clean_data(df, 
+                                ('Div.Yield', 
+                                 'Mrg Ebit', 
+                                 'Mrg. Líq.', 
+                                 'ROIC', 
+                                 'ROE', 
+                                 'Cresc. Rec.5a'))
+        df = self._filter(df)
         dfMagicFormula = self.__magicFormula(df)
-        dfDownloadValues = self.__downloadValues(dfMagicFormula)
+        dfDownloadValues = self.__downloadValues(dfMagicFormula, dt_start)
 
         return self.__dataProcess(dfMagicFormula, dfDownloadValues)

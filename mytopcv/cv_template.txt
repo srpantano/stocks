@@ -1,0 +1,57 @@
+NOME:
+
+<nome, sobrenome>
+
+DATA NASCIMENTO:
+
+<DD/MM/AAAA> (opicional)
+
+OBJETIVO:
+
+<Cargo 1, Cargo 2, Cargo 3>
+
+RESUMO PROFISSIONAL:
+
+<Coloque o texto aqui>
+
+EXPERIENCIA 1:
+
+<cargo> [SEP]
+<empresa> [SEP]
+<AAAA/MM-AAAA/MM>[SEP]
+<Coloque a descricao aqui>[SEP]
+
+EXPERIENCIA 2:
+
+<cargo> [SEP]
+<empresa> [SEP]
+<AAAA/MM-AAAA/MM>[SEP]
+<Coloque a descricao aqui>[SEP]
+
+EXPERIENCIA 2:
+
+<cargo> [SEP]
+<empresa> [SEP]
+<AAAA/MM-AAAA/MM>[SEP]
+<Coloque a descricao aqui>[SEP]
+
+ESCOLA 1:
+
+<nome da escola>[SEP]
+<grau>[SEP]
+<AAAA/MM-AAAA/MM>[SEP]
+#<texto adicional aqui>[SEP]
+
+ESCOLA 2:
+
+<nome da escola>[SEP]
+<grau>[SEP]
+<AAAA/MM-AAAA/MM>[SEP]
+<texto adicional aqui>[SEP]
+
+ESCOLA 1:
+
+<nome da escola>[SEP]
+<grau>[SEP]
+<AAAA/MM-AAAA/MM>[SEP]
+<texto adicional aqui>[SEP]

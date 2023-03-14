@@ -19,4 +19,5 @@ RUN git clone --progress --verbose https://github.com/srpantano/stocks.git .
 
 RUN pip install -r requirements.txt
 
-ENTRYPOINT [ "python", "StockValueScraper.py", "--url https://www.fundamentus.com.br/resultado.php",  "-dt 2020-12-18" ]
+CMD ["StockValueScraper.py"]
+ENTRYPOINT [ "python", "--url https://www.fundamentus.com.br/resultado.php", "-dt 2020-12-18" ]
